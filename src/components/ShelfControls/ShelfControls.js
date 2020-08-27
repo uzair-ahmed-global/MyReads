@@ -1,14 +1,14 @@
 import React from 'react'
+import classes from './ShelfControls.module.css'
 
-const ShelfControls = (props) => {
+const ShelfControl = (props) => {
+    let controls = props.options.map(option => {
+        return <option value={option.value} disabled={option.disabled}>{option.text}</option>
+    })
     return (
-        <div className="book-shelf-changer">
+        <div className={classes.ShelfControl}>
             <select>
-                <option value="move" disabled>Move to...</option>
-                <option value="currentlyReading">Currently Reading</option>
-                <option value="wantToRead">Want to Read</option>
-                <option value="read">Read</option>
-                <option value="none">None</option>
+                {controls}
             </select>
         </div>
     )
