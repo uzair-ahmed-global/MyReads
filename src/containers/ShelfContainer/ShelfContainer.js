@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
+
 import * as BooksAPI from '../../BooksAPI'
 import Shelf from '../../components/Shelf/Shelf'
 import classes from './ShelfContainer.module.css'
+
 
 export default class ShelfContainer extends Component {
     state = {
@@ -73,10 +75,14 @@ export default class ShelfContainer extends Component {
                     break
             }
         })
+        
         return (
             <div>
                 <div className={classes.ListBooksTitle}>
                     <h1>MyReads</h1>
+                    <div className={classes.OpenSearch}>
+                        <button onClick={() => this.props.history.push('/search')}>Search</button>
+                    </div>
                 </div>
                 <div className={classes.ListBooksContent}>
                     <Shelf name='Currently Reading' books={currentlyReadingBooks} shelfChangedHandler={this.shelfChangedHandler} />
