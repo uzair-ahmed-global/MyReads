@@ -75,7 +75,7 @@ export default class ShelfContainer extends Component {
                     break
             }
         })
-        
+
         return (
             <div>
                 <div className={classes.ListBooksTitle}>

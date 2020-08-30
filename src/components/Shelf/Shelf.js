@@ -1,18 +1,19 @@
 import React from 'react'
+
 import Book from '../Book/Book'
 import classes from './Shelf.module.css'
 
+
 const Shelf = (props) => {
-    console.log(props.name, props.books);
     let books = props.books.map(book => {
         return <Book
             key={book.id}
             bookID={book.id}
             title={book.title}
-            author={book.authors.join(', ')}
-            shelf={book.shelf}
-            imageUrl={book.imageLinks.thumbnail}
-            shelfChangedHandler={props.shelfChangedHandler}/>
+            author={book.authors ? book.authors.join(', ') : ''}
+            shelf={book.shelf ? book.shelf : 'none'}
+            imageUrl={book.imageLinks ? book.imageLinks.thumbnail : ''}
+            shelfChangedHandler={props.shelfChangedHandler} />
     })
     return (
         <div className={classes.BookShelf}>
