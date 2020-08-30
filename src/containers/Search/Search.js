@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import * as BooksAPI from '../../BooksAPI'
 import classes from './Search.module.css'
 import Book from '../../components/Book/Book'
+import Spinner from '../../components/UI/Spinner/Spinner'
 
 export default class Search extends Component {
     state = {
@@ -12,11 +13,16 @@ export default class Search extends Component {
     }
 
     componentDidMount() {
+        this.setState({
+            ...this.state,
+            loading: true
+        })
         BooksAPI.getAll()
             .then(books => {
                 this.setState({
                     ...this.state,
-                    shelfBooks: books
+                    shelfBooks: books,
+                    loading: false
                 })
             })
     }
@@ -30,16 +36,27 @@ export default class Search extends Component {
             })
             return
         }
+        this.setState({
+            ...this.state,
+            loading: true
+        })
+
         BooksAPI.search(event.target.value)
             .then(books => {
                 this.setState({
                     ...this.state,
-                    searchBooks: books.hasOwnProperty('error') ? [] : books
+                    searchBooks: books.hasOwnProperty('error') ? [] : books,
+                    loading: false
                 })
             })
     }
 
     shelfChangedHandler = (event, bookID) => {
+        this.setState({
+            ...this.state,
+            loading: true
+        })
+
         BooksAPI.update({ id: bookID }, event.target.value)
             .then(res => {
                 let shelf = null
@@ -60,6 +77,7 @@ export default class Search extends Component {
         })
         this.setState({
             ...this.state,
+            loading: false,
             searchBooks: [
                 ...this.state.searchBooks.slice(0, oldBookIndex),
                 {
@@ -92,6 +110,10 @@ export default class Search extends Component {
                     imageUrl={book.imageLinks ? book.imageLinks.thumbnail : ''}
                     shelfChangedHandler={this.shelfChangedHandler} />
             })
+        }
+        
+        if (this.state.loading) {
+            books = <Spinner/>
         }
         return (
             (

@@ -3,11 +3,13 @@ import React, { Component } from 'react'
 import * as BooksAPI from '../../BooksAPI'
 import Shelf from '../../components/Shelf/Shelf'
 import classes from './ShelfContainer.module.css'
+import Spinner from '../../components/UI/Spinner/Spinner'
 
 
 export default class ShelfContainer extends Component {
     state = {
         books: [],
+        loading: false
     }
 
     componentDidMount() {
@@ -15,39 +17,56 @@ export default class ShelfContainer extends Component {
     }
 
     shelfChangedHandler = (event, bookID) => {
+        this.setState({
+            ...this.state,
+            loading: true
+        })
+
         BooksAPI.update({ id: bookID }, event.target.value)
-            .then(_ => {
-                this.updateBook(bookID)
+        .then(res => {
+            let shelf = null
+            Object.keys(res).forEach(key => {
+                res[key].forEach(id => {
+                    if (id === bookID) {
+                        shelf = key
+                    }
+                })                    
             })
+            this.updateBook(bookID, shelf)
+        })
     }
 
     updateShelves = () => {
+        this.setState({
+            ...this.state,
+            loading: true
+        })
         BooksAPI.getAll()
             .then(books => {
                 this.setState({
                     ...this.state,
-                    books: books
+                    books: books,
+                    loading: false
                 })
             })
     }
 
-    updateBook = (bookID) => {
-        BooksAPI.get(bookID)
-            .then(res => {
-                const oldBookIndex = this.state.books.findIndex(book => {
-                    return book.id === res.id
-                })
-                this.setState({
-                    ...this.state,
-                    books: [
-                        ...this.state.books.slice(0, oldBookIndex),
-                        {
-                            ...res
-                        },
-                        ...this.state.books.slice(oldBookIndex + 1)
-                    ]
-                })
-            })
+    updateBook = (bookID, shelf) => {
+        const oldBookIndex = this.state.books.findIndex(book => {
+            return book.id === bookID
+        })
+        this.setState({
+            ...this.state,
+            loading: false,
+            books: [
+                ...this.state.books.slice(0, oldBookIndex),
+                {
+                    ...this.state.books[oldBookIndex],
+                    shelf: shelf
+                },
+                ...this.state.books.slice(oldBookIndex + 1)
+            ]
+        })
     }
 
     render() {
@@ -76,6 +95,18 @@ export default class ShelfContainer extends Component {
             }
         })
 
+        let shelves = (
+            <div className={classes.ListBooksContent}>
+                <Shelf name='Currently Reading' books={currentlyReadingBooks} shelfChangedHandler={this.shelfChangedHandler} />
+                <Shelf name='Want to Read' books={wantToReadBooks} shelfChangedHandler={this.shelfChangedHandler} />
+                <Shelf name='Read' books={readBooks} shelfChangedHandler={this.shelfChangedHandler} />
+            </div>
+        )
+
+        if (this.state.loading) {
+            shelves = <Spinner/>
+        }
+
         return (
             <div>
                 <div className={classes.ListBooksTitle}>
@@ -84,11 +115,7 @@ export default class ShelfContainer extends Component {
                         <button onClick={() => this.props.history.push('/search')}>Search</button>
                     </div>
                 </div>
-                <div className={classes.ListBooksContent}>
-                    <Shelf name='Currently Reading' books={currentlyReadingBooks} shelfChangedHandler={this.shelfChangedHandler} />
-                    <Shelf name='Want to Read' books={wantToReadBooks} shelfChangedHandler={this.shelfChangedHandler} />
-                    <Shelf name='Read' books={readBooks} shelfChangedHandler={this.shelfChangedHandler} />
-                </div>
+                {shelves}
             </div>
         )
     }
